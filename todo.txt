@@ -1,0 +1,13 @@
+[x] Kollision och död
+[x] Starta om
+
+[x] Göra om kollision till en funktion för att
+    lättare kunna applicera den på flera olika föremål
+    [x] Uppdatera så att x och y koordinater tillhör variabler för "fiender"
+
+[] Poängräkning
+[] Utöka världen
+    []Sol
+    []Fartränder i marken
+
+[]Göra sprites och animationer
