@@ -19,7 +19,7 @@ class Player:
             self.x -= self.speed
         #Hopp
         
-        if pyxel.btnp(pyxel.KEY_SPACE) and self.on_ground:
+        if pyxel.btn(pyxel.KEY_SPACE) and self.on_ground:
             self.vy = self.jump_strength
             self.on_ground = False
         #Gravitation
@@ -31,6 +31,14 @@ class Player:
             # tänk på att spelarens position baseras på dess övre vänstra hörn(tänk 0,0)
             self.vy = 0 #stoppar spelarens vertikala rörelse
             self.on_ground = True #berättar för spelet att spelaren nu står på marken
+        
+        #Väggkollision 
+        if self.x < 0: #kollar om spelaren passerar x=0
+            self.x = 0 #flyttar tillbaka spelaren till x=0
+        if self.x > 152:
+            self.x = 152
+            # tänk på att spelarens position baseras på dess övre vänstra hörn(tänk 0,0)
+
 
     def draw(self):
         pyxel.rect(self.x, self.y, 8, 16, 10)
@@ -42,10 +50,13 @@ class App:
         
         pyxel.init(160, 120, title="Run fo yo life")
         
-        self.fyrkant_x = 140 #fyrkantens x-position
+        #hinder
+        self.fyrkant_x = 170 #fyrkantens x-position
         self.fyrkant_y = 92 #fyrkantens y-position
         self.redsquare_x = 190
         self.redsquare_y = 86
+        self.longsquare_x = 256
+        self.longsquare_y = 92
         
         #markens rörelse
         self.mark_x = 160
@@ -69,11 +80,14 @@ class App:
 
         #fiende rörelser
         self.fyrkant_x = (self.fyrkant_x -2)
-        if self.fyrkant_x < -10: #när denna kordinat nås gör...
-            self.fyrkant_x= pyxel.width - 20 #sätt fyrkant = skärmens bredd - 20 pixlar
+        if self.fyrkant_x < -10: #när denna kordinat nås...
+            self.fyrkant_x= pyxel.width + 10 #sätt fyrkant = skärmens bredd + 10 pixlar
         self.redsquare_x = (self.redsquare_x -2)
-        if self.redsquare_x < -10: #när denna kordinat nås gör...
-            self.redsquare_x= pyxel.width + 20 #sätt fyrkant = skärmens bredd + 20 pixlar
+        if self.redsquare_x < -30:
+            self.redsquare_x= pyxel.width + 80
+        self.longsquare_x = (self.longsquare_x -2)
+        if self.longsquare_x < -90:
+            self.longsquare_x= pyxel.width + 240
 
         #kollisionsdetektering 
         if self.check_collision(
@@ -84,6 +98,11 @@ class App:
         if self.check_collision(
             self.player.x, self.player.y, 8, 16,
             self.redsquare_x, self.redsquare_y, 8, 8
+        ):
+            self.game_over = True
+        if self.check_collision(
+            self.player.x, self.player.y, 8, 16,
+            self.longsquare_x, self.longsquare_y, 8, 8
         ):
             self.game_over = True
 
@@ -97,7 +116,9 @@ class App:
             self.mark3_x = pyxel.width + 170
         
     def restart(self):
-        self.fyrkant_x = 140 #fyrkantens x-position
+        self.fyrkant_x = 170 #fyrkantens x-position
+        self.redsquare_x = 190
+        self.longsquare_x = 256
         self.player = Player(50, 50)
 
         self.game_over = False
@@ -108,6 +129,7 @@ class App:
         #fiender
         pyxel.rect(self.fyrkant_x, self.fyrkant_y, 8, 8, 9)
         pyxel.rect(self.redsquare_x, self.redsquare_y, 8, 14, 2)
+        pyxel.rect(self.longsquare_x, self.longsquare_y, 8, 8, 7)
 
         #marken
         pyxel.rect(self.mark_x, 105, 2, 2, 3)

@@ -5,7 +5,7 @@
     lättare kunna applicera den på flera olika föremål
     [x] Uppdatera så att x och y koordinater tillhör variabler för "fiender"
 
-[]Gör så man inte kan springa utanför skärmen
+[x]Gör så man inte kan springa utanför skärmen
 
 [] Poängräkning
 [] Utöka världen
