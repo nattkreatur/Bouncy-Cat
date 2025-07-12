@@ -7,7 +7,7 @@ class Player:
         self.vy = 0
         self.speed = 1.5
         self.gravity = 0.5
-        self.jump_strength = -4
+        self.jump_strength = -5
         self.on_ground = False
 
 
@@ -26,8 +26,8 @@ class Player:
         self.vy += self.gravity
         self.y += self.vy
         #Markkollision
-        if self.y >= 85: #kollar om spelaren fallit förbi/nuddat marknivån
-            self.y = 85 #flyttar tillbaka spelaren till marknivå 
+        if self.y >= 84: #kollar om spelaren fallit förbi/nuddat marknivån
+            self.y = 84 #flyttar tillbaka spelaren till marknivå 
             # tänk på att spelarens position baseras på dess övre vänstra hörn(tänk 0,0)
             self.vy = 0 #stoppar spelarens vertikala rörelse
             self.on_ground = True #berättar för spelet att spelaren nu står på marken
@@ -40,10 +40,18 @@ class Player:
 class App:
     def __init__(self):
         
-        pyxel.init(160, 120, title="Springarn")
+        pyxel.init(160, 120, title="Run fo yo life")
         
         self.fyrkant_x = 140 #fyrkantens x-position
         self.fyrkant_y = 92 #fyrkantens y-position
+        self.redsquare_x = 190
+        self.redsquare_y = 86
+        
+        #markens rörelse
+        self.mark_x = 160
+        self.mark2_x = 20
+        self.mark3_x = 70
+
         #Spelare + startposition
         self.player = Player(50, 50)
 
@@ -59,10 +67,13 @@ class App:
             return #hoppa över resten av update/gör så att spelet fryser
         self.player.update()
 
-        #fyrkantens rörelser
+        #fiende rörelser
         self.fyrkant_x = (self.fyrkant_x -2)
-        if self.fyrkant_x < 40: #när denna kordinat nås gör...
+        if self.fyrkant_x < -10: #när denna kordinat nås gör...
             self.fyrkant_x= pyxel.width - 20 #sätt fyrkant = skärmens bredd - 20 pixlar
+        self.redsquare_x = (self.redsquare_x -2)
+        if self.redsquare_x < -10: #när denna kordinat nås gör...
+            self.redsquare_x= pyxel.width + 20 #sätt fyrkant = skärmens bredd + 20 pixlar
 
         #kollisionsdetektering 
         if self.check_collision(
@@ -70,6 +81,20 @@ class App:
             self.fyrkant_x, self.fyrkant_y, 8, 8
         ):
             self.game_over = True
+        if self.check_collision(
+            self.player.x, self.player.y, 8, 16,
+            self.redsquare_x, self.redsquare_y, 8, 8
+        ):
+            self.game_over = True
+
+        #markens rörelse
+        self.mark_x = (self.mark_x - 2) % pyxel.width
+        self.mark2_x = (self.mark2_x - 2)
+        if self.mark2_x < -10:
+            self.mark2_x = pyxel.width + 165
+        self.mark3_x = (self.mark3_x - 2)
+        if self.mark3_x < -10:
+            self.mark3_x = pyxel.width + 170
         
     def restart(self):
         self.fyrkant_x = 140 #fyrkantens x-position
@@ -79,7 +104,15 @@ class App:
 
     def draw(self):
         pyxel.cls(0)
+
+        #fiender
         pyxel.rect(self.fyrkant_x, self.fyrkant_y, 8, 8, 9)
+        pyxel.rect(self.redsquare_x, self.redsquare_y, 8, 14, 2)
+
+        #marken
+        pyxel.rect(self.mark_x, 105, 2, 2, 3)
+        pyxel.rect(self.mark2_x, 110, 2, 2, 3)
+        pyxel.rect(self.mark3_x, 112, 2, 2, 3)
         pyxel.text(20, 20, "Run fo yo life", 10)
         self.player.draw()
 

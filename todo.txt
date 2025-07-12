@@ -5,9 +5,13 @@
     lättare kunna applicera den på flera olika föremål
     [x] Uppdatera så att x och y koordinater tillhör variabler för "fiender"
 
+[]Gör så man inte kan springa utanför skärmen
+
 [] Poängräkning
 [] Utöka världen
     []Sol
-    []Fartränder i marken
+    [X]Fartränder i marken
+
 
 []Göra sprites och animationer
+[]Bättre game over screen
