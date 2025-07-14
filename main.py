@@ -46,7 +46,31 @@ class Player:
         pyxel.rect(self.x, self.y, 8, 8, 10)
         
 
-#Spelet
+class Hinder:
+    def __init__(self, x, y, w, h, speed, rs, end, color):
+        self.x = x
+        self.startx = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.speed = speed
+        self.rs = rs #resetvärde pyxelwidth + x
+        self.end = end
+        self.color = color
+
+    def update(self):
+        self.x -= self.speed #indikerar att fiender rör sig från höger till vänster
+        if self.x < self.end:
+            self.x = pyxel.width + self.rs
+            #pyxel.width + pyxel.rndi(170,190) #kodrad med randint
+            #self.x = self.startx
+
+    def draw(self):
+        pyxel.rect(self.x, self.y, self.w, self.h, self.color)
+
+    def reset(self):
+        self.x = self.startx
+
 class App:
     def __init__(self):
         
@@ -58,21 +82,22 @@ class App:
         self.phs = 0 #placeholder sekund
         self.minut = 0
         
-        #hinder
-        self.fyrkant_x = 170 #fyrkantens x-position
-        self.fyrkant_y = 92 #fyrkantens y-position
-        self.redsquare_x = 190
-        self.redsquare_y = 86
-        self.longsquare_x = 256
-        self.longsquare_y = 92
-        
+        #oop fiendelista
+        self.allahinder = [
+            #Hinder(x, y, w, h, speed, resetvärde, end-värde, color)
+            Hinder(170, 92, 8, 8, 2, 10, -10, 9), #den gamla fyrkant
+            Hinder(190, 86, 8, 14, 2, 80, -30, 2), #redsquare
+            Hinder(256, 92, 8, 8, 2, 240, -90, 7) #longsquare
+            
+        ]
+
         #markens rörelse
         self.mark_x = 160
         self.mark2_x = 20
         self.mark3_x = 70
 
         #Spelare + startposition
-        self.start_x = 50
+        self.start_x = 10
         self.start_y = -10
         self.player = Player(self.start_x, self.start_y)
 
@@ -97,34 +122,13 @@ class App:
                 self.restart()
             return #hoppa över resten av update/gör så att spelet fryser
         self.player.update()
-
-        #fiende rörelser
-        self.fyrkant_x = (self.fyrkant_x -2)
-        if self.fyrkant_x < -10: #när denna kordinat nås...
-            self.fyrkant_x= pyxel.width + 10 #sätt fyrkant = skärmens bredd + 10 pixlar
-        self.redsquare_x = (self.redsquare_x -2)
-        if self.redsquare_x < -30:
-            self.redsquare_x= pyxel.width + 80
-        self.longsquare_x = (self.longsquare_x -2)
-        if self.longsquare_x < -90:
-            self.longsquare_x= pyxel.width + 240
-
-        #kollisionsdetektering 
-        if self.check_collision(
-            self.player.x, self.player.y, 8, 8, #hitbox spelare
-            self.fyrkant_x, self.fyrkant_y, 8, 8
-        ):
-            self.game_over = True
-        if self.check_collision(
-            self.player.x, self.player.y, 8, 8,
-            self.redsquare_x, self.redsquare_y, 8, 8
-        ):
-            self.game_over = True
-        if self.check_collision(
-            self.player.x, self.player.y, 8, 8,
-            self.longsquare_x, self.longsquare_y, 8, 8
-        ):
-            self.game_over = True
+        
+        #OOP Hinder kollision
+        for hinder in self.allahinder:
+            hinder.update()
+            if self.check_collision(self.player.x, self.player.y, 8, 8, 
+                                hinder.x, hinder.y, hinder.w, hinder.h):
+                self.game_over = True
 
         #markens rörelse
         self.mark_x = (self.mark_x - 2) % pyxel.width
@@ -136,11 +140,9 @@ class App:
             self.mark3_x = pyxel.width + 170
         
     def restart(self):
-        self.fyrkant_x = 170 #fyrkantens x-position
-        self.redsquare_x = 190
-        self.longsquare_x = 256
+        for hinder in self.allahinder:
+            hinder.reset()
         self.player = Player(self.start_x, self.start_y)
-
         self.game_over = False
 
     def draw(self):
@@ -149,10 +151,9 @@ class App:
         #Tidtagning utskrift
         pyxel.text(5, 5, f"Time: {self.minut}:{self.phs}{self.sekund}", 7)
 
-        #fiender
-        pyxel.rect(self.fyrkant_x, self.fyrkant_y, 8, 8, 9)
-        pyxel.rect(self.redsquare_x, self.redsquare_y, 8, 14, 2)
-        pyxel.rect(self.longsquare_x, self.longsquare_y, 8, 8, 7)
+        #OOP Hinder
+        for hinder in self.allahinder:
+            hinder.draw()
 
         #marken
         pyxel.rect(self.mark_x, 105, 2, 2, 3)

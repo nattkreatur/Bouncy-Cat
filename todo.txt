@@ -16,11 +16,15 @@
 
 []Göra sprites och animationer
 []Bättre game over screen
+    []Stoppa klockan
+    []Spara poäng
 
 [x] Poängräkning (logik i stort sett klar)
     [ ]Flytta och snygga till, döp om variabler
 
 Uppdateringar nedan:
+
+[x] Gör alla fiender till objekt
 
 [x] Studs only
 [] Enemy 4 efter 2 minuter?
