@@ -26,8 +26,8 @@ class Player:
         self.vy += self.gravity
         self.y += self.vy
         #Markkollision
-        if self.y >= 84: #kollar om spelaren fallit förbi/nuddat marknivån
-            self.y = 84 #flyttar tillbaka spelaren till marknivå 
+        if self.y >= 92: #kollar om spelaren fallit förbi/nuddat marknivån
+            self.y = 92 #flyttar tillbaka spelaren till marknivå 
             # tänk på att spelarens position baseras på dess övre vänstra hörn(tänk 0,0)
             self.vy = 0 #stoppar spelarens vertikala rörelse
             self.on_ground = True #berättar för spelet att spelaren nu står på marken
@@ -41,7 +41,7 @@ class Player:
 
 
     def draw(self):
-        pyxel.rect(self.x, self.y, 8, 16, 10)
+        pyxel.rect(self.x, self.y, 8, 8, 10)
         
 
 #Spelet
@@ -49,6 +49,12 @@ class App:
     def __init__(self):
         
         pyxel.init(160, 120, title="Run fo yo life")
+
+        #Tidtagning variabler
+        self.tidtagning = pyxel.frame_count
+        self.tid = 0
+        self.ph = 0
+        self.minut = 0
         
         #hinder
         self.fyrkant_x = 170 #fyrkantens x-position
@@ -72,6 +78,16 @@ class App:
 
     def update(self):
 
+        #Tidtagning logik
+        self.tid = (pyxel.frame_count - self.tidtagning) // 30
+        if self.tid == 10:
+            self.ph = ""
+        if self.tid == 60:
+            self.tidtagning = pyxel.frame_count
+            self.minut = self.minut + 1
+        if self.tid == 0:
+            self.ph = 0
+
         if self.game_over:
             if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
                 self.restart()
@@ -91,17 +107,17 @@ class App:
 
         #kollisionsdetektering 
         if self.check_collision(
-            self.player.x, self.player.y, 8, 16,
+            self.player.x, self.player.y, 8, 8, #hitbox spelare
             self.fyrkant_x, self.fyrkant_y, 8, 8
         ):
             self.game_over = True
         if self.check_collision(
-            self.player.x, self.player.y, 8, 16,
+            self.player.x, self.player.y, 8, 8,
             self.redsquare_x, self.redsquare_y, 8, 8
         ):
             self.game_over = True
         if self.check_collision(
-            self.player.x, self.player.y, 8, 16,
+            self.player.x, self.player.y, 8, 8,
             self.longsquare_x, self.longsquare_y, 8, 8
         ):
             self.game_over = True
@@ -125,6 +141,9 @@ class App:
 
     def draw(self):
         pyxel.cls(0)
+
+        #Tidtagning utskrift
+        pyxel.text(5, 5, f"Time: {self.minut}:{self.ph}{self.tid}s", 7)
 
         #fiender
         pyxel.rect(self.fyrkant_x, self.fyrkant_y, 8, 8, 9)

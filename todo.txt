@@ -1,5 +1,6 @@
 [x] Kollision och död
 [x] Starta om
+[x] Ändra spelarstorlek + hitbox från 8x16 till 8x8
 
 [x] Göra om kollision till en funktion för att
     lättare kunna applicera den på flera olika föremål
@@ -7,7 +8,7 @@
 
 [x]Gör så man inte kan springa utanför skärmen
 
-[] Poängräkning
+
 [] Utöka världen
     []Sol
     [X]Fartränder i marken
@@ -15,3 +16,13 @@
 
 []Göra sprites och animationer
 []Bättre game over screen
+
+[x] Poängräkning (logik i stort sett klar)
+    [ ]Flytta och snygga till, döp om variabler
+
+Uppdateringar nedan:
+
+[] Studs only
+[] Enemy 4 efter 2 minuter?
+[] Enemy 5 när? 2000-aldrig?
+
