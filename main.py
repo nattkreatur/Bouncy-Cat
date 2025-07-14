@@ -17,14 +17,16 @@ class Player:
             self.x += self.speed
         if pyxel.btn(pyxel.KEY_LEFT):
             self.x -= self.speed
-        #Hopp
         
-        if pyxel.btn(pyxel.KEY_SPACE) and self.on_ground:
+        #Hopp mekanik
+        if self.on_ground: 
             self.vy = self.jump_strength
             self.on_ground = False
+        
         #Gravitation
         self.vy += self.gravity
         self.y += self.vy
+
         #Markkollision
         if self.y >= 92: #kollar om spelaren fallit förbi/nuddat marknivån
             self.y = 92 #flyttar tillbaka spelaren till marknivå 
@@ -51,9 +53,9 @@ class App:
         pyxel.init(160, 120, title="Run fo yo life")
 
         #Tidtagning variabler
-        self.tidtagning = pyxel.frame_count
-        self.tid = 0
-        self.ph = 0
+        self.tidtagning = pyxel.frame_count #frame_count är en funktion som räknar fps. I pyxel 30fps/s
+        self.sekund = 0
+        self.phs = 0 #placeholder sekund
         self.minut = 0
         
         #hinder
@@ -70,7 +72,9 @@ class App:
         self.mark3_x = 70
 
         #Spelare + startposition
-        self.player = Player(50, 50)
+        self.start_x = 50
+        self.start_y = -10
+        self.player = Player(self.start_x, self.start_y)
 
         self.game_over = False
 
@@ -79,14 +83,14 @@ class App:
     def update(self):
 
         #Tidtagning logik
-        self.tid = (pyxel.frame_count - self.tidtagning) // 30
-        if self.tid == 10:
-            self.ph = ""
-        if self.tid == 60:
+        self.sekund = (pyxel.frame_count - self.tidtagning) // 30 #30fps/30 = 1 sek
+        if self.sekund == 10:
+            self.phs = ""
+        if self.sekund == 60:
             self.tidtagning = pyxel.frame_count
             self.minut = self.minut + 1
-        if self.tid == 0:
-            self.ph = 0
+        if self.sekund == 0:
+            self.phs = 0
 
         if self.game_over:
             if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
@@ -135,7 +139,7 @@ class App:
         self.fyrkant_x = 170 #fyrkantens x-position
         self.redsquare_x = 190
         self.longsquare_x = 256
-        self.player = Player(50, 50)
+        self.player = Player(self.start_x, self.start_y)
 
         self.game_over = False
 
@@ -143,7 +147,7 @@ class App:
         pyxel.cls(0)
 
         #Tidtagning utskrift
-        pyxel.text(5, 5, f"Time: {self.minut}:{self.ph}{self.tid}s", 7)
+        pyxel.text(5, 5, f"Time: {self.minut}:{self.phs}{self.sekund}", 7)
 
         #fiender
         pyxel.rect(self.fyrkant_x, self.fyrkant_y, 8, 8, 9)

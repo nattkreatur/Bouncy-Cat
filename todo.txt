@@ -22,7 +22,7 @@
 
 Uppdateringar nedan:
 
-[] Studs only
+[x] Studs only
 [] Enemy 4 efter 2 minuter?
 [] Enemy 5 när? 2000-aldrig?
 
