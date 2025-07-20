@@ -9,24 +9,28 @@
 [x]Gör så man inte kan springa utanför skärmen
 
 
-[] Utöka världen
-    []Sol
+[x] Utöka världen
+    [x]Sol
     [X]Fartränder i marken
 
 
-[]Göra sprites och animationer
-[]Bättre game over screen
+[ ]Göra sprites och animationer
+[ ]Bättre game over screen
     [x]Stoppa klockan
-    []Spara poäng
+    [ ]Spara poäng
 
 [x] Poängräkning (logik i stort sett klar)
     [ ]Flytta och snygga till, döp om variabler
+    [ ]Spara poäng
 
 Uppdateringar nedan:
 
 [x] Gör alla fiender till objekt
 
 [x] Studs only
-[x] Enemy 4 efter 30 sek. Fågel
-[] Enemy 5 när? 2000-aldrig?
+[x] Enemy 4 efter 35 sek. Fågel
+[ ] Enemy 5 när? 2000-aldrig?
 
+STÄDA
+
+[ ] Rensa bort kodstycket på rad 134 (ifall det inte behövs)

@@ -93,6 +93,7 @@ class App:
         ]
         #tidsaktiverade hiender
         self.hinder_aktiverad = False
+        self.hinder_paus = True
 
         #markens rörelse
         self.mark_x = 160
@@ -127,14 +128,23 @@ class App:
             self.phs = 0
         
         #OOP Hinder kollision
-        for hinder in self.allahinder:
-            hinder.update()
-            if self.check_collision(self.player.x, self.player.y, 8, 8, 
-                                hinder.x, hinder.y, hinder.w, hinder.h):
-                self.game_over = True
+        if self.hinder_paus and self.sekund > 3: #fördröjer fiender/hinder med 3 sekunder första minuten
+            self.hinder_paus = False
+            #stycket nedan verkar inte behövas, sparas ett tag ifall något skiter sig
+            #for hinder in self.allahinder:
+                #hinder.update()
+                #if self.check_collision(self.player.x, self.player.y, 8, 8, 
+                #                    hinder.x, hinder.y, hinder.w, hinder.h):
+                #    self.game_over = True
+        if not self.hinder_paus: #om 1 minut är passerad körs spelet som vanligt utan 3sek fördröjning
+            for hinder in self.allahinder:
+                hinder.update()
+                if self.check_collision(self.player.x, self.player.y, 8, 8, 
+                                    hinder.x, hinder.y, hinder.w, hinder.h):
+                    self.game_over = True
 
         #tidsaktiverade hinder
-        if not self.hinder_aktiverad and self.sekund >= 30:
+        if not self.hinder_aktiverad and self.sekund >= 35:
             self.allahinder.append(Hinder(150, 72, 4, 4, 3, 200, -150, 7, tidsstyrd = True)) #flysquare
             self.hinder_aktiverad = True
 
@@ -149,6 +159,7 @@ class App:
         
     def restart(self):
         self.hinder_aktiverad = False
+        self.hinder_paus = True #säkerställer 3-sekundsfrist även efter game over
         self.tidtagning = pyxel.frame_count #behövs för att starta om tidtagningen
 
         #skapar ny lista allahinder och tar bort alla tidsaktiverade hinder från den tidigare listan men behåller de fasta
