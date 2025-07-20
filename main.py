@@ -47,7 +47,7 @@ class Player:
         
 
 class Hinder:
-    def __init__(self, x, y, w, h, speed, rs, end, color):
+    def __init__(self, x, y, w, h, speed, rs, end, color, tidsstyrd = False):
         self.x = x
         self.startx = x
         self.y = y
@@ -57,6 +57,7 @@ class Hinder:
         self.rs = rs #resetvärde pyxelwidth + x
         self.end = end
         self.color = color
+        self.tidsstyrd = tidsstyrd #vilka fiender som spawnar senare
 
     def update(self):
         self.x -= self.speed #indikerar att fiender rör sig från höger till vänster
@@ -82,14 +83,16 @@ class App:
         self.phs = 0 #placeholder sekund
         self.minut = 0
         
+        
         #oop fiendelista
         self.allahinder = [
-            #Hinder(x, y, w, h, speed, resetvärde, end-värde, color)
+            #Hinder(x, y, w, h, speed, resetvärde, end-värde, color, tidsstyrd)
             Hinder(170, 92, 8, 8, 2, 10, -10, 9), #den gamla fyrkant
             Hinder(190, 86, 8, 14, 2, 80, -30, 2), #redsquare
-            Hinder(256, 92, 8, 8, 2, 240, -90, 7) #longsquare
-            
+            Hinder(256, 92, 8, 8, 2, 240, -90, 1), #longsquare
         ]
+        #tidsaktiverade hiender
+        self.hinder_aktiverad = False
 
         #markens rörelse
         self.mark_x = 160
@@ -107,6 +110,12 @@ class App:
 
     def update(self):
 
+        if self.game_over:
+            if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
+                self.restart()
+            return #hoppa över resten av update/gör så att spelet fryser
+        self.player.update()
+
         #Tidtagning logik
         self.sekund = (pyxel.frame_count - self.tidtagning) // 30 #30fps/30 = 1 sek
         if self.sekund == 10:
@@ -116,12 +125,6 @@ class App:
             self.minut = self.minut + 1
         if self.sekund == 0:
             self.phs = 0
-
-        if self.game_over:
-            if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
-                self.restart()
-            return #hoppa över resten av update/gör så att spelet fryser
-        self.player.update()
         
         #OOP Hinder kollision
         for hinder in self.allahinder:
@@ -129,6 +132,11 @@ class App:
             if self.check_collision(self.player.x, self.player.y, 8, 8, 
                                 hinder.x, hinder.y, hinder.w, hinder.h):
                 self.game_over = True
+
+        #tidsaktiverade hinder
+        if not self.hinder_aktiverad and self.sekund >= 30:
+            self.allahinder.append(Hinder(150, 72, 4, 4, 3, 200, -150, 7, tidsstyrd = True)) #flysquare
+            self.hinder_aktiverad = True
 
         #markens rörelse
         self.mark_x = (self.mark_x - 2) % pyxel.width
@@ -140,6 +148,11 @@ class App:
             self.mark3_x = pyxel.width + 170
         
     def restart(self):
+        self.hinder_aktiverad = False
+        self.tidtagning = pyxel.frame_count #behövs för att starta om tidtagningen
+
+        #skapar ny lista allahinder och tar bort alla tidsaktiverade hinder från den tidigare listan men behåller de fasta
+        self.allahinder = [h for h in self.allahinder if not h.tidsstyrd] 
         for hinder in self.allahinder:
             hinder.reset()
         self.player = Player(self.start_x, self.start_y)
@@ -159,7 +172,9 @@ class App:
         pyxel.rect(self.mark_x, 105, 2, 2, 3)
         pyxel.rect(self.mark2_x, 110, 2, 2, 3)
         pyxel.rect(self.mark3_x, 112, 2, 2, 3)
+
         pyxel.text(20, 20, "Run fo yo life", 10)
+        pyxel.circb(140, 10, 50, 7)
         self.player.draw()
 
         #world

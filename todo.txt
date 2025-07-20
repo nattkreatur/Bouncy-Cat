@@ -16,7 +16,7 @@
 
 []Göra sprites och animationer
 []Bättre game over screen
-    []Stoppa klockan
+    [x]Stoppa klockan
     []Spara poäng
 
 [x] Poängräkning (logik i stort sett klar)
@@ -27,6 +27,6 @@ Uppdateringar nedan:
 [x] Gör alla fiender till objekt
 
 [x] Studs only
-[] Enemy 4 efter 2 minuter?
+[x] Enemy 4 efter 30 sek. Fågel
 [] Enemy 5 när? 2000-aldrig?
 
