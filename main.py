@@ -75,13 +75,17 @@ class Hinder:
 class App:
     def __init__(self):
         
-        pyxel.init(160, 120, title="Run fo yo life")
+        pyxel.init(160, 120, title="Bounce fo yo life")
 
         #Tidtagning variabler
         self.tidtagning = pyxel.frame_count #frame_count är en funktion som räknar fps. I pyxel 30fps/s
         self.sekund = 0
         self.phs = 0 #placeholder sekund
         self.minut = 0
+        #Rekord
+        self.rekords = 0
+        self.rekordm = 0
+        self.rekphs = 0
         
         
         #oop fiendelista
@@ -158,6 +162,7 @@ class App:
             self.mark3_x = pyxel.width + 170
         
     def restart(self):
+        self.save_highscore()
         self.hinder_aktiverad = False
         self.hinder_paus = True #säkerställer 3-sekundsfrist även efter game over
         self.tidtagning = pyxel.frame_count #behövs för att starta om tidtagningen
@@ -168,12 +173,28 @@ class App:
             hinder.reset()
         self.player = Player(self.start_x, self.start_y)
         self.game_over = False
+        self.minut = 0 #manuell nollställning av minuträknare
+
+    def save_highscore(self):
+        if self.minut == self.rekordm:
+            if self.sekund > self.rekords:
+                self.rekords = self.sekund
+                self.rekphs = 0
+        if self.minut > self.rekordm:
+            self.rekordm = self.minut
+            self.rekords = self.sekund
+            self.rekphs = 0
+        if self.rekords >= 10:
+            self.rekphs = ""
 
     def draw(self):
         pyxel.cls(0)
 
         #Tidtagning utskrift
         pyxel.text(5, 5, f"Time: {self.minut}:{self.phs}{self.sekund}", 7)
+
+        #High score
+        pyxel.text(110, 5, f"Record: {self.rekordm}:{self.rekphs}{self.rekords}", 7)
 
         #OOP Hinder
         for hinder in self.allahinder:
@@ -184,7 +205,7 @@ class App:
         pyxel.rect(self.mark2_x, 110, 2, 2, 3)
         pyxel.rect(self.mark3_x, 112, 2, 2, 3)
 
-        pyxel.text(20, 20, "Run fo yo life", 10)
+        pyxel.text(20, 20, "Bounce fo yo life", 10)
         pyxel.circb(140, 10, 50, 7)
         self.player.draw()
 
