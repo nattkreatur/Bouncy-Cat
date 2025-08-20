@@ -9,6 +9,7 @@ class Player:
         self.gravity = 0.5
         self.jump_strength = -5
         self.on_ground = False
+        self.alive = True
 
 
     def update(self):
@@ -43,11 +44,15 @@ class Player:
 
 
     def draw(self):
-        pyxel.rect(self.x, self.y, 8, 8, 10)
+        #pyxel.rect(self.x, self.y, 8, 8, 10)
+        if self.alive == False:
+            pyxel.blt(self.x, self.y, 0, 32, 8, 8, 8, 0)
+        else:
+            pyxel.blt(self.x, self.y, 0, 32 if self.y > 80 else 24, 0, 8, 8, 0) #sämsta animationskoden ever?
         
 
 class Hinder:
-    def __init__(self, x, y, w, h, speed, rs, end, color, tidsstyrd = False):
+    def __init__(self, x, y, w, h, speed, rs, end, u, v, tidsstyrd = False):
         self.x = x
         self.startx = x
         self.y = y
@@ -56,8 +61,13 @@ class Hinder:
         self.speed = speed
         self.rs = rs #resetvärde pyxelwidth + x
         self.end = end
-        self.color = color
+        self.u = u
+        self.v = v
         self.tidsstyrd = tidsstyrd #vilka fiender som spawnar senare
+
+        #animation
+        
+    
 
     def update(self):
         self.x -= self.speed #indikerar att fiender rör sig från höger till vänster
@@ -67,15 +77,17 @@ class Hinder:
             #self.x = self.startx
 
     def draw(self):
-        pyxel.rect(self.x, self.y, self.w, self.h, self.color)
+        #pyxel.rect(self.x, self.y, self.w, self.h, self.color)
+        pyxel.blt(self.x, self.y, 0, self.u, self.v, self.w, self.h, colkey=0)
 
     def reset(self):
         self.x = self.startx
 
 class App:
     def __init__(self):
-        
-        pyxel.init(160, 120, title="Bounce fo yo life")
+
+        pyxel.init(160, 120, title="Bounce fo yo life", display_scale=4)
+        pyxel.load("game.pyxres")
 
         #Tidtagning variabler
         self.tidtagning = pyxel.frame_count #frame_count är en funktion som räknar fps. I pyxel 30fps/s
@@ -86,14 +98,18 @@ class App:
         self.rekords = 0
         self.rekordm = 0
         self.rekphs = 0
+
+        #rörlig bakgrund, se marken i update och draw
+        self.scroll_offset = 0
+        self.scroll_speed = 2
         
         
-        #oop fiendelista
+        #oop fiendelista - i listor hamnar föremålen tvärtom, alltså blir soptunnan längst bak och stoppskylt längst fram på skärmen
         self.allahinder = [
-            #Hinder(x, y, w, h, speed, resetvärde, end-värde, color, tidsstyrd)
-            Hinder(170, 92, 8, 8, 2, 10, -10, 9), #den gamla fyrkant
-            Hinder(190, 86, 8, 14, 2, 80, -30, 2), #redsquare
-            Hinder(256, 92, 8, 8, 2, 240, -90, 1), #longsquare
+            #Hinder(x, y, w, h, speed, resetvärde, end-värde, u, v, tidsstyrd) 
+            Hinder(256, 92, 8, 8, 2, 240, -90, 0, 8), #soptunna
+            Hinder(170, 92, 8, 8, 2, 10, -10, 8, 0), #brandpost
+            Hinder(190, 86, 8, 14, 2, 80, -30, 16, 0), #stoppskylt
         ]
         #tidsaktiverade hiender
         self.hinder_aktiverad = False
@@ -134,24 +150,24 @@ class App:
         #OOP Hinder kollision
         if self.hinder_paus and self.sekund > 3: #fördröjer fiender/hinder med 3 sekunder första minuten
             self.hinder_paus = False
-            #stycket nedan verkar inte behövas, sparas ett tag ifall något skiter sig
-            #for hinder in self.allahinder:
-                #hinder.update()
-                #if self.check_collision(self.player.x, self.player.y, 8, 8, 
-                #                    hinder.x, hinder.y, hinder.w, hinder.h):
-                #    self.game_over = True
         if not self.hinder_paus: #om 1 minut är passerad körs spelet som vanligt utan 3sek fördröjning
             for hinder in self.allahinder:
                 hinder.update()
                 if self.check_collision(self.player.x, self.player.y, 8, 8, 
                                     hinder.x, hinder.y, hinder.w, hinder.h):
+                    self.player.alive = False
                     self.game_over = True
 
         #tidsaktiverade hinder
+        #Hinder(x, y, w, h, speed, resetvärde, end-värde, u, v, tidsstyrd)
         if not self.hinder_aktiverad and self.sekund >= 35:
-            self.allahinder.append(Hinder(150, 72, 4, 4, 3, 200, -150, 7, tidsstyrd = True)) #flysquare
+            self.allahinder.append(Hinder(150, 72, 8, 5, 3, 200, -150, 8, 11, tidsstyrd = True)) #flysquare
             self.hinder_aktiverad = True
 
+        #marken(forloop i draw)
+        self.scroll_offset += self.scroll_speed
+        if self.scroll_offset >= 160:
+            self.scroll_offset -= 160
         #markens rörelse
         self.mark_x = (self.mark_x - 2) % pyxel.width
         self.mark2_x = (self.mark2_x - 2)
@@ -173,6 +189,7 @@ class App:
             hinder.reset()
         self.player = Player(self.start_x, self.start_y)
         self.game_over = False
+        self.player.alive = True #Undersök denna
         self.minut = 0 #manuell nollställning av minuträknare
 
     def save_highscore(self):
@@ -188,7 +205,17 @@ class App:
             self.rekphs = ""
 
     def draw(self):
-        pyxel.cls(0)
+        pyxel.cls(6)
+
+        #häck
+        #pyxel.blt(0, 52, 0, 0, 32, 160, 16, colkey=0)
+
+        #mur
+        
+        for i in range(2):
+            x = i * 160 - int(self.scroll_offset)
+            pyxel.blt(x, 60, 0, 0, 40, 160, 40, colkey=0)
+        
 
         #Tidtagning utskrift
         pyxel.text(5, 5, f"Time: {self.minut}:{self.phs}{self.sekund}", 7)
@@ -209,8 +236,10 @@ class App:
         pyxel.circb(140, 10, 50, 7)
         self.player.draw()
 
-        #world
-        pyxel.line(0, 100, 160, 100, 3) #marken
+        #marken(logik i update)
+        for i in range(2):
+            x = i * 160 - int(self.scroll_offset)
+            pyxel.blt(x, 100, 0, 0, 16, 160, 20, colkey=2)
 
         #kollision
         if self.game_over:

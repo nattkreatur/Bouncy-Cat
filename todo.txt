@@ -15,6 +15,7 @@
 
 
 [ ]Göra sprites och animationer
+[ ]Se över hitboxar
 [ ]Bättre game over screen
     [x]Stoppa klockan
     
@@ -30,7 +31,8 @@ Uppdateringar nedan:
 
 [x] Studs only
 [x] Enemy 4 efter 35 sek. Fågel
-[ ] Enemy 5 när? 2000-aldrig?
+[ ] Enemy 5 när? 1:20 kanske?
+[ ] Enemy 6 THIS IS THE END OF ALL HOPE
 
 STÄDA
 
