@@ -42,7 +42,6 @@ class Player:
             self.x = 152
             # tänk på att spelarens position baseras på dess övre vänstra hörn(tänk 0,0)
 
-
     def draw(self):
         #pyxel.rect(self.x, self.y, 8, 8, 10)
         if self.alive == False:
@@ -50,6 +49,11 @@ class Player:
         else:
             pyxel.blt(self.x, self.y, 0, 32 if self.y > 80 else 24, 0, 8, 8, 0) #sämsta animationskoden ever?
         
+    def get_hitbox(self):
+        # Göt hitbox 2px mindre på varje sida
+        return self.x + 2, self.y + 2, 4, 4
+        # +2 flytter startpunkten för hitboxen enligt koordinatsystemet
+        # 4,4 anger hitboxens storlek
 
 class Hinder:
     def __init__(self, x, y, w, h, speed, rs, end, u, v, tidsstyrd = False):
@@ -66,7 +70,11 @@ class Hinder:
         self.tidsstyrd = tidsstyrd #vilka fiender som spawnar senare
 
         #animation
-        
+        self.frame = 0
+        self.tick = 0
+        self.frames = 4 #hur många frames animationen ska ha
+        self.frame_w = self.w #vilken startframe animationen ska ha, har satt samma som statiska hinder för att underlätta
+        self.frame_h = self.h
     
 
     def update(self):
@@ -76,17 +84,37 @@ class Hinder:
             #pyxel.width + pyxel.rndi(170,190) #kodrad med randint
             #self.x = self.startx
 
+        #animation för tidsstyrda hinder
+        if self.tidsstyrd:
+            self.tick += 1
+            if self.tick % 4 == 0: # byt frame var 8:e update
+                self.frame = (self.frame + 1) % self.frames #byter till nästa frame
+
     def draw(self):
-        #pyxel.rect(self.x, self.y, self.w, self.h, self.color)
-        pyxel.blt(self.x, self.y, 0, self.u, self.v, self.w, self.h, colkey=0)
+        if self.tidsstyrd:
+            pyxel.blt(
+                self.x,
+                self.y,
+                0,
+                self.u + self.frame * self.frame_w,
+                self.v,
+                self.frame_w,
+                self.frame_h,
+                0
+            )
+        else:
+            #pyxel.rect(self.x, self.y, self.w, self.h, self.color)
+            pyxel.blt(self.x, self.y, 0, self.u, self.v, self.w, self.h, colkey=0)
 
     def reset(self):
         self.x = self.startx
+        self.frame = 0
+        self.tick = 0
 
 class App:
     def __init__(self):
 
-        pyxel.init(160, 120, title="Bounce fo yo life", display_scale=4)
+        pyxel.init(160, 120, title="Bouncy Cat", display_scale=4)
         pyxel.load("game.pyxres")
 
         #Tidtagning variabler
@@ -108,11 +136,12 @@ class App:
         self.allahinder = [
             #Hinder(x, y, w, h, speed, resetvärde, end-värde, u, v, tidsstyrd) 
             Hinder(256, 92, 8, 8, 2, 240, -90, 0, 8), #soptunna
-            Hinder(170, 92, 8, 8, 2, 10, -10, 8, 0), #brandpost
+            Hinder(170, 92, 6, 8, 2, 10, -10, 9, 0), #brandpost
             Hinder(190, 86, 8, 14, 2, 80, -30, 16, 0), #stoppskylt
         ]
         #tidsaktiverade hiender
-        self.hinder_aktiverad = False
+        self.hinder_aktiverad = False #krävs för att spriten inte ska målas på varenda frame hela tiden
+        self.hinder2_aktiverad = False
         self.hinder_paus = True
 
         #markens rörelse
@@ -151,17 +180,23 @@ class App:
         if self.hinder_paus and self.sekund > 3: #fördröjer fiender/hinder med 3 sekunder första minuten
             self.hinder_paus = False
         if not self.hinder_paus: #om 1 minut är passerad körs spelet som vanligt utan 3sek fördröjning
+            px, py, pw, ph = self.player.get_hitbox()
+
             for hinder in self.allahinder:
                 hinder.update()
-                if self.check_collision(self.player.x, self.player.y, 8, 8, 
+                if self.check_collision(px, py, pw, ph, 
                                     hinder.x, hinder.y, hinder.w, hinder.h):
                     self.player.alive = False
                     self.game_over = True
 
         #tidsaktiverade hinder
         #Hinder(x, y, w, h, speed, resetvärde, end-värde, u, v, tidsstyrd)
-        if not self.hinder_aktiverad and self.sekund >= 35:
-            self.allahinder.append(Hinder(150, 72, 8, 5, 3, 200, -150, 8, 11, tidsstyrd = True)) #flysquare
+        if not self.hinder2_aktiverad and self.sekund == 34:
+            self.allahinder.append(Hinder(160, 72, 8, 7, 3, 300, -250, 120, 0, tidsstyrd = True)) #fågel resetvärdet kan behöva tweakas
+            self.hinder2_aktiverad = True
+
+        if not self.hinder_aktiverad and self.minut == 1 and self.sekund >= 5:
+            self.allahinder.append(Hinder(160, 87, 16, 13, 4, 500, -500, 56, 3, tidsstyrd = True)) #hund
             self.hinder_aktiverad = True
 
         #marken(forloop i draw)
@@ -176,10 +211,11 @@ class App:
         self.mark3_x = (self.mark3_x - 2)
         if self.mark3_x < -10:
             self.mark3_x = pyxel.width + 170
-        
+
     def restart(self):
         self.save_highscore()
         self.hinder_aktiverad = False
+        self.hinder2_aktiverad = False
         self.hinder_paus = True #säkerställer 3-sekundsfrist även efter game over
         self.tidtagning = pyxel.frame_count #behövs för att starta om tidtagningen
 
@@ -207,11 +243,10 @@ class App:
     def draw(self):
         pyxel.cls(6)
 
-        #häck
-        #pyxel.blt(0, 52, 0, 0, 32, 160, 16, colkey=0)
+        # Hus
+        pyxel.blt(20, 36, 0, 0, 88, 115, 32, 0)
 
         #mur
-        
         for i in range(2):
             x = i * 160 - int(self.scroll_offset)
             pyxel.blt(x, 60, 0, 0, 40, 160, 40, colkey=0)
@@ -232,8 +267,10 @@ class App:
         pyxel.rect(self.mark2_x, 110, 2, 2, 3)
         pyxel.rect(self.mark3_x, 112, 2, 2, 3)
 
-        pyxel.text(20, 20, "Bounce fo yo life", 10)
+        pyxel.text(20, 20, "Bouncy Cat", 10)
+
         pyxel.circb(140, 10, 50, 7)
+
         self.player.draw()
 
         #marken(logik i update)
