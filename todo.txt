@@ -8,22 +8,20 @@
 
 [x]Gör så man inte kan springa utanför skärmen
 
-
 [x] Utöka världen
     [x]Sol
     [X]Fartränder i marken
-
 
 [x]Göra sprites och animationer
 [x]Se över hitboxar
 [ ]Bättre game over screen
     [x]Stoppa klockan
-    
-
+    [ ]Få Game Over att falla ned/flyga in från ovan?
+ 
 [x] Poängräkning (logik i stort sett klar)
-    [ ]Flytta och snygga till, döp om variabler
+    [ ]Flytta och snygga till, döp om variabler ???
     [x]Spara poäng
-    [ ]Spara poäng även om spelet startas om!
+    [ ]Spara poäng även om spelet startas om! NEJ TACK
 
 Uppdateringar nedan:
 
@@ -36,4 +34,4 @@ Uppdateringar nedan:
 
 STÄDA
 
-[ ] Rensa bort kodstycket på rad 134 (ifall det inte behövs)
+[x] Rensa bort kodstycket på rad 134 (ifall det inte behövs) 

@@ -81,8 +81,6 @@ class Hinder:
         self.x -= self.speed #indikerar att fiender rör sig från höger till vänster
         if self.x < self.end:
             self.x = pyxel.width + self.rs
-            #pyxel.width + pyxel.rndi(170,190) #kodrad med randint
-            #self.x = self.startx
 
         #animation för tidsstyrda hinder
         if self.tidsstyrd:
@@ -103,7 +101,6 @@ class Hinder:
                 0
             )
         else:
-            #pyxel.rect(self.x, self.y, self.w, self.h, self.color)
             pyxel.blt(self.x, self.y, 0, self.u, self.v, self.w, self.h, colkey=0)
 
     def reset(self):
@@ -198,11 +195,12 @@ class App:
         if not self.hinder_aktiverad and self.minut == 1 and self.sekund >= 5:
             self.allahinder.append(Hinder(160, 87, 16, 13, 4, 500, -500, 56, 3, tidsstyrd = True)) #hund
             self.hinder_aktiverad = True
-
+        
         #marken(forloop i draw)
         self.scroll_offset += self.scroll_speed
         if self.scroll_offset >= 160:
             self.scroll_offset -= 160
+        """ Gammal kod ska nog raderas
         #markens rörelse
         self.mark_x = (self.mark_x - 2) % pyxel.width
         self.mark2_x = (self.mark2_x - 2)
@@ -211,6 +209,7 @@ class App:
         self.mark3_x = (self.mark3_x - 2)
         if self.mark3_x < -10:
             self.mark3_x = pyxel.width + 170
+        """
 
     def restart(self):
         self.save_highscore()
@@ -253,23 +252,23 @@ class App:
         
 
         #Tidtagning utskrift
-        pyxel.text(5, 5, f"Time: {self.minut}:{self.phs}{self.sekund}", 7)
+        pyxel.text(115, 5, f"Time: {self.minut}:{self.phs}{self.sekund}", 7)
 
         #High score
-        pyxel.text(110, 5, f"Record: {self.rekordm}:{self.rekphs}{self.rekords}", 7)
+        pyxel.text(115, 15, f"Best: {self.rekordm}:{self.rekphs}{self.rekords}", 7)
 
         #OOP Hinder
         for hinder in self.allahinder:
             hinder.draw()
 
-        #marken
+        """ gammal kod för marken
         pyxel.rect(self.mark_x, 105, 2, 2, 3)
         pyxel.rect(self.mark2_x, 110, 2, 2, 3)
         pyxel.rect(self.mark3_x, 112, 2, 2, 3)
+        """
 
-        pyxel.text(20, 20, "Bouncy Cat", 10)
-
-        pyxel.circb(140, 10, 50, 7)
+        # solen
+        pyxel.circ(14, 14, 5, 10)
 
         self.player.draw()
 
@@ -280,7 +279,8 @@ class App:
 
         #kollision
         if self.game_over:
-            pyxel.text(50, 60, "Game over", pyxel.frame_count % 16)
+            pyxel.rect(57, 48, 40, 10, 0)
+            pyxel.text(60, 50, "Game over", pyxel.frame_count % 16)
     
     def check_collision(self, x1, y1, w1, h1, x2, y2, w2, h2):
         #1 representerar spelare, 2 representerar objekt/fiende
