@@ -1,5 +1,6 @@
 import pyxel
 
+
 class Player:
     def __init__(self, x, y):
         self.x = x
@@ -111,11 +112,15 @@ class Hinder:
 class App:
     def __init__(self):
 
-        pyxel.init(160, 120, title="Bouncy Cat", display_scale=4)
+        self.welcome = True
+        self.game_over = False
+    
+        pyxel.init(160, 120, title="Bouncy Cat", fps=30, display_scale=4)
         pyxel.load("game.pyxres")
 
         #Tidtagning variabler
-        self.tidtagning = pyxel.frame_count #frame_count är en funktion som räknar fps. I pyxel 30fps/s
+        
+        self.tidtagning = 0
         self.sekund = 0
         self.phs = 0 #placeholder sekund
         self.minut = 0
@@ -151,17 +156,27 @@ class App:
         self.start_y = -10
         self.player = Player(self.start_x, self.start_y)
 
-        self.game_over = False
+        #game over screen
+        self.y = 0
+
 
         pyxel.run(self.update, self.draw)
 
     def update(self):
 
+        if self.welcome:
+            if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
+                self.welcome = False
+                self.tidtagning = pyxel.frame_count #frame_count räknar fps, initieras en gång här. Börjar räkna först efter self.welcome = False
+            return
+        
         if self.game_over:
             if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.KEY_SPACE):
                 self.restart()
             return #hoppa över resten av update/gör så att spelet fryser
         self.player.update()
+
+
 
         #Tidtagning logik
         self.sekund = (pyxel.frame_count - self.tidtagning) // 30 #30fps/30 = 1 sek
@@ -240,6 +255,14 @@ class App:
             self.rekphs = ""
 
     def draw(self):
+
+        if self.welcome:
+            pyxel.cls(6)
+            pyxel.text(60, 30, "Bouncy Cat", 0)
+            pyxel.text(30, 40, "Controls: Leftarrow + Rightarrow", 0)
+            pyxel.text(30, 60, "Press --Space-- to start", 0)
+            return
+
         pyxel.cls(6)
 
         # Hus
@@ -252,23 +275,25 @@ class App:
         
 
         #Tidtagning utskrift
-        pyxel.text(115, 5, f"Time: {self.minut}:{self.phs}{self.sekund}", 7)
+        pyxel.text(115, 5, f"Time: {self.minut}:{self.phs}{self.sekund}", 0)
 
         #High score
-        pyxel.text(115, 15, f"Best: {self.rekordm}:{self.rekphs}{self.rekords}", 7)
+        pyxel.text(115, 15, f"Best: {self.rekordm}:{self.rekphs}{self.rekords}", 0)
 
         #OOP Hinder
         for hinder in self.allahinder:
             hinder.draw()
 
-        """ gammal kod för marken
-        pyxel.rect(self.mark_x, 105, 2, 2, 3)
-        pyxel.rect(self.mark2_x, 110, 2, 2, 3)
-        pyxel.rect(self.mark3_x, 112, 2, 2, 3)
-        """
-
-        # solen
+        # solen -- hade fan gått snabbare att bara måla skiten för hand
         pyxel.circ(14, 14, 5, 10)
+        pyxel.line(21,21,23,23,10) #högerned
+        pyxel.line(7,21,5,23,10) #vänsterned
+        pyxel.line(20,8,22,6,10) #högerupp
+        pyxel.line(7,8,5,6,10) #vänsterupp
+        pyxel.line(23,14,27,14,10) #höger
+        pyxel.line(14,23,14,26,10) #ned
+        pyxel.line(14,5,14,2,10) #upp
+        pyxel.line(5,14,2,14,10) #vänster
 
         self.player.draw()
 
@@ -277,10 +302,10 @@ class App:
             x = i * 160 - int(self.scroll_offset)
             pyxel.blt(x, 100, 0, 0, 16, 160, 20, colkey=2)
 
-        #kollision
+        # Game Over screen
         if self.game_over:
-            pyxel.rect(57, 48, 40, 10, 0)
-            pyxel.text(60, 50, "Game over", pyxel.frame_count % 16)
+            self.y = (self.y + 1) % pyxel.height
+            pyxel.text(60, self.y, "Game over", pyxel.frame_count % 16)
     
     def check_collision(self, x1, y1, w1, h1, x2, y2, w2, h2):
         #1 representerar spelare, 2 representerar objekt/fiende
@@ -290,5 +315,6 @@ class App:
             y1 < y2 + h2 and
             y1 + h1 > y2
         )
+
 
 App()
