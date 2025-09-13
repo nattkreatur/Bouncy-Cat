@@ -210,21 +210,11 @@ class App:
         if not self.hinder_aktiverad and self.minut == 1 and self.sekund >= 5:
             self.allahinder.append(Hinder(160, 87, 16, 13, 4, 500, -500, 56, 3, tidsstyrd = True)) #hund
             self.hinder_aktiverad = True
-        
+
         #marken(forloop i draw)
         self.scroll_offset += self.scroll_speed
         if self.scroll_offset >= 160:
             self.scroll_offset -= 160
-        """ Gammal kod ska nog raderas
-        #markens rörelse
-        self.mark_x = (self.mark_x - 2) % pyxel.width
-        self.mark2_x = (self.mark2_x - 2)
-        if self.mark2_x < -10:
-            self.mark2_x = pyxel.width + 165
-        self.mark3_x = (self.mark3_x - 2)
-        if self.mark3_x < -10:
-            self.mark3_x = pyxel.width + 170
-        """
 
     def restart(self):
         self.save_highscore()
@@ -258,9 +248,14 @@ class App:
 
         if self.welcome:
             pyxel.cls(6)
-            pyxel.text(60, 30, "Bouncy Cat", 0)
-            pyxel.text(30, 40, "Controls: Leftarrow + Rightarrow", 0)
-            pyxel.text(30, 60, "Press --Space-- to start", 0)
+            pyxel.blt(x=27, y=40, img=0, u=0, v=136, w=150, h=24, colkey=0) #logga
+            pyxel.blt(x=30, y=30, img=0, u=24, v=0, w=8, h=8, colkey=0) #katt
+            pyxel.blt(x=120, y=37, img=0, u=32, v=8, w=8, h=8, colkey=0) #katt2
+            pyxel.blt(x=80, y=30, img=0, u=40, v=3, w=16, h=13, colkey=0) #hund
+            pyxel.text(15, 70, "Controls: Leftarrow + Rightarrow", 0)
+            pyxel.text(30, 85, "Press --Space-- to start", 0)
+            pyxel.blt(x=70, y=111, img=0, u=0, v=160, w=8, h=8, colkey=0)
+            pyxel.text(80, 112, "Night Creature Games", 9)
             return
 
         pyxel.cls(6)
@@ -305,7 +300,7 @@ class App:
         # Game Over screen
         if self.game_over:
             self.y = (self.y + 1) % pyxel.height
-            pyxel.text(60, self.y, "Game over", pyxel.frame_count % 16)
+            pyxel.text(60, self.y, "Game Over", pyxel.frame_count % 16)
     
     def check_collision(self, x1, y1, w1, h1, x2, y2, w2, h2):
         #1 representerar spelare, 2 representerar objekt/fiende
